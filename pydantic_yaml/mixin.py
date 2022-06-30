@@ -189,9 +189,13 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             yaml.dump(data,dump)
             data = yaml.load(dump.getvalue())
             self.add_inline_descriptions(data,self)
-            dump = StringIO()
-            yaml.dump(data,dump)
-            dump = dump.getvalue()
+            if 'stream' in kwargs:
+                yaml.dump(data,kwargs['stream'])
+                return None
+            else:
+                stream = StringIO()
+                yaml.dump(data,stream)
+                dump = stream.getvalue()
 
         return dump
 
