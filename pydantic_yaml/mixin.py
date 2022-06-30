@@ -162,20 +162,11 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             )
 
         cfg = cast(YamlModelMixinConfig, self.__config__)
-        dump = cfg.yaml_dumps(
-            data,
-            default_flow_style=default_flow_style,
-            default_style=default_style,
-            encoding=encoding,
-            indent=indent,
-            **kwargs,
-        )
         
-        if descriptions:
-            if not 'ruamel' in __yaml_lib__:
+        if descriptions and not 'ruamel' in __yaml_lib__:
                 warnings.warn("ruamel.yaml is required for yaml(descriptions=True), \
                     dumping without comments")
-                return dump
+        elif descriptions:
             from ruamel.yaml import YAML
             from io import StringIO
             from collections import OrderedDict
@@ -195,9 +186,16 @@ class YamlModelMixin(metaclass=ModelMetaclass):
             else:
                 stream = StringIO()
                 yaml.dump(data,stream)
-                dump = stream.getvalue()
-
-        return dump
+                return stream.getvalue()
+        else:
+            return cfg.yaml_dumps(
+                data,
+                default_flow_style=default_flow_style,
+                default_style=default_style,
+                encoding=encoding,
+                indent=indent,
+                **kwargs,
+            )
 
 
     @staticmethod
